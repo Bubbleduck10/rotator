@@ -41,64 +41,15 @@ let clockOffset = 0;
 const now = () => Date.now() / 1000 + clockOffset;
 const t0 = () => (cfg.t0 > 0 ? cfg.t0 : 0); // before launch: a preview on the epoch
 
-// ---- the rotation: hero, orbit, slots, strip ------------------------------------------
+// ---- the rotation: hero, slots, strip ------------------------------------------
 
 let shownRound = null; // the window currently drawn
-let shownSlot = 0;
-// How far the ring has turned since load, in steps. Counted from the page's own
-// start rather than from the round number: a round number times 72 degrees runs
-// into the millions, and a transform that large loses precision and jitters.
-let ringPos = 0;
 
 function current() {
   const t = now();
   if (launched && t < cfg.t0) return { prestart: true, w: windowAt(t, cfg.t0, N), left: cfg.t0 - t };
   const w = windowAt(t, t0(), N);
   return { prestart: false, w, left: w.endsAt - t };
-}
-
-function buildOrbit() {
-  const C = 200, R = 128, r = 38;
-  const defs = STOCKS.map((s, i) => `
-    <radialGradient id="b${i}" cx="0.36" cy="0.32" r="0.78">
-      <stop offset="0" stop-color="${mix(s.accent, "#ffffff", 0.55)}"/>
-      <stop offset="0.55" stop-color="${s.accent}"/>
-      <stop offset="1" stop-color="${mix(s.accent, "#000000", 0.38)}"/>
-    </radialGradient>`).join("");
-  const bubbles = STOCKS.map((s, i) => {
-    const a = ((-90 + i * 72) * Math.PI) / 180;
-    const x = C + R * Math.cos(a), y = C + R * Math.sin(a);
-    return `
-    <g class="bub" id="bub${i}">
-      <g class="inner"><g class="scale">
-        <circle cx="${x}" cy="${y + 3}" r="${r + 2}" fill="${s.accent}" opacity=".45" filter="url(#glow)"/>
-        <circle cx="${x}" cy="${y}" r="${r}" fill="url(#b${i})"/>
-        <circle cx="${x}" cy="${y}" r="${r - 1.5}" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.5"/>
-        <ellipse cx="${x - 11}" cy="${y - 14}" rx="15" ry="9" transform="rotate(-32 ${x - 11} ${y - 14})" fill="url(#spec)"/>
-        <text class="lbl" x="${x}" y="${y + 5}" text-anchor="middle">${s.symbol}</text>
-      </g></g>
-    </g>`;
-  }).join("");
-  const circ = 2 * Math.PI * 182;
-  $("orbit").innerHTML = `
-    <defs>${defs}
-      <radialGradient id="spec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-      <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
-    </defs>
-    <circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="#f2f1e8" stroke-opacity=".07" stroke-width="1.5" stroke-dasharray="2 6"/>
-    <circle cx="${C}" cy="${C}" r="182" fill="none" stroke="#f2f1e8" stroke-opacity=".06" stroke-width="3"/>
-    <circle id="progress" cx="${C}" cy="${C}" r="182" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"
-      stroke-dasharray="${circ}" stroke-dashoffset="${circ}" transform="rotate(-90 ${C} ${C})"/>
-    <g id="ring">${bubbles}</g>
-    <circle cx="${C}" cy="${C}" r="7" fill="#f2f1e8" fill-opacity=".4"/>
-    <circle cx="${C}" cy="${C}" r="20" fill="none" stroke="#f2f1e8" stroke-opacity=".08" stroke-width="1.5"/>`;
-  $("orbit").dataset.circ = circ;
-}
-
-function mix(hex, other, t) {
-  const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const [a, b] = [p(hex), p(other)];
-  return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0")).join("");
 }
 
 function buildSlots() {
@@ -112,24 +63,6 @@ function buildSlots() {
     </div>`).join("");
 }
 
-function turnRing(slot, animate) {
-  const ring = $("ring");
-  if (!animate) ring.style.transition = "none";
-  ring.style.transform = `rotate(${-ringPos * 72}deg)`;
-  STOCKS.forEach((_, i) => {
-    const inner = document.querySelector(`#bub${i} .inner`);
-    if (!animate) inner.style.transition = "none";
-    // each bubble turns back by as much as the ring turns, so its label stays upright
-    inner.style.transform = `rotate(${ringPos * 72}deg)`;
-    $(`bub${i}`).classList.toggle("on", i === slot);
-  });
-  if (!animate) {
-    ring.getBoundingClientRect(); // commit before transitions come back
-    ring.style.transition = "";
-    document.querySelectorAll(".bub .inner").forEach((el) => (el.style.transition = ""));
-  }
-}
-
 function renderClock() {
   const { prestart, w, left } = current();
   const slot = w.slot;
@@ -139,17 +72,13 @@ function renderClock() {
 
   const turned = shownRound !== w.round;
   if (turned) {
-    const first = shownRound === null;
-    ringPos = first ? slot : ringPos + ((slot - shownSlot + N) % N);
     shownRound = w.round;
-    shownSlot = slot;
     document.documentElement.style.setProperty("--accent", stock.accent);
     const em = $("hero-sym");
     em.textContent = stock.symbol;
     em.classList.remove("swap");
     void em.offsetWidth;
     em.classList.add("swap");
-    turnRing(slot, !first);
     $("s-now").textContent = stock.symbol;
     $("s-now-sub").textContent = `${stock.name} xStock`;
     $("strip-now").textContent = stock.symbol;
@@ -171,8 +100,6 @@ function renderClock() {
   snap($("cd-fill"), "width", `${(frac * 100).toFixed(2)}%`);
   $("strip-next").textContent = prestart ? "first round" : next.symbol;
   $("strip-cd").textContent = mmss(left);
-  const circ = Number($("orbit").dataset.circ);
-  snap($("progress"), "strokeDashoffset", String(circ * (1 - frac)));
 
   STOCKS.forEach((s, i) => {
     const k = (i - slot + N) % N;
@@ -466,7 +393,6 @@ function renderStatic() {
 
 // ---- start ------------------------------------------------------------------------------------
 
-buildOrbit();
 buildSlots();
 renderStatic();
 renderClock();
