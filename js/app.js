@@ -390,7 +390,7 @@ function renderLookup() {
   }).join("");
 
   $("lookup-out").innerHTML = `${verdict}<div class="holdings">${rows}</div>
-    <div class="foot">Balances include stock from anywhere, not just ROTATOR. "In rounds shown" counts only the rounds loaded on the left. <a href="${solscan("account", v)}" target="_blank" rel="noopener noreferrer">${short(v)} on Solscan</a></div>`;
+    <div class="foot">Balances include stock from anywhere, not just Stonk Rotator. "In rounds shown" counts only the rounds loaded on the left. <a href="${solscan("account", v)}" target="_blank" rel="noopener noreferrer">${short(v)} on Solscan</a></div>`;
 }
 
 // ---- static parts --------------------------------------------------------------------------
@@ -408,7 +408,7 @@ function renderStatic() {
     $("notice-body").innerHTML =
       `<b>$ROTATOR hasn't launched yet.</b> It will launch on StonkFun, paired with SOL. Until then the rotation above ` +
       `runs on a preview clock and nobody is being paid. The official mint address will be posted here. Until it is, ` +
-      `any token calling itself ROTATOR is not this one.`;
+      `any token calling itself Stonk Rotator or $ROTATOR is not this one. Check the mint, not the name.`;
   } else {
     notice.className = "notice";
     $("notice-tag").textContent = "live";
