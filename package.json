@@ -1,0 +1,16 @@
+{
+  "name": "@callout/rotator-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone front end for ROTATOR",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.99.0"
+  },
+  "overrides": {
+    "@solana/web3.js": "^1.99.0"
+  }
+}

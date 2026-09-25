@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ROTATOR</title>
+<meta name="description" content="A Solana pool whose pairing rotates through five tokenized stocks every five minutes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Warm paper, not grey. The whole page should read as printed stock. */
+    --bg: #f6f4ec;
+    --panel: #fffefa;
+    --soft: #eeece1;
+    --ink: #232620;
+    --muted: #767a6d;
+    --line: #e2e0d3;
+    --line-firm: #cfccbb;
+
+    /* The dark used for the hero and the status strip. */
+    --dark: #1e211b;
+    --dark-line: #2e322a;
+    --dark-ink: #f2f1e8;
+    --dark-muted: #a8ad99;
+
+    --sage: #6f8a45;
+    --sage-soft: #eaf1dc;
+    --sage-line: #cfdfb0;
+
+    --buy: #4f7a33;
+    --sell: #a8512f;
+
+    /* Set from JS to the active stock — the page tints as the pairing turns. */
+    --accent: #6f8a45;
+
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; border: 0; cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .45; }
+  input { font: inherit; }
+
+  /* tiny mono label, used above every number on the page */
+  .eyebrow {
+    font: 500 9.5px var(--mono);
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+  }
+
+  /* ---- status strip ---- */
+  .strip {
+    background: var(--dark); color: var(--dark-muted);
+    font: 10.5px var(--mono); letter-spacing: .04em;
+    height: 30px; display: flex; align-items: center;
+    justify-content: center; gap: 11px; padding: 0 16px;
+  }
+  .strip b { color: var(--dark-ink); font-weight: 500; }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #93b45c; display: inline-block; flex-shrink: 0;
+  }
+  .strip .sep { opacity: .3; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 64px; }
+
+  /* ---- masthead ---- */
+  .mast {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 26px 0 20px; border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .word {
+    font: 600 27px var(--mono); letter-spacing: -1.6px;
+    text-transform: uppercase;
+  }
+  .word i { font-style: normal; color: var(--accent); transition: color .45s ease; }
+  .sub { font: 10px var(--mono); letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }
+  .mast .grow { flex: 1; }
+  .mast a { font: 10.5px var(--mono); color: var(--muted); border-bottom: 1px solid transparent; }
+  .mast a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ---- hero: the rotation ---- */
+  .hero {
+    background: var(--dark); color: var(--dark-ink);
+    border: 1px solid var(--dark-line); border-radius: 7px;
+    margin-top: 22px; padding: 26px 28px 22px;
+    position: relative; overflow: hidden;
+  }
+  /* faint scanline, the only decorative thing on the page */
+  .hero:after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.055) 4px);
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .eyebrow { color: var(--dark-muted); }
+  .hero h1 {
+    font-size: clamp(25px, 3.2vw, 35px); font-weight: 500;
+    letter-spacing: -1.3px; line-height: 1.12; margin: 12px 0 6px;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); transition: color .45s ease; }
+  .hero p { font-size: 13px; color: var(--dark-muted); margin: 0; max-width: 560px; line-height: 1.65; }
+
+  .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 22px; }
+  .slot {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--dark-line); border-radius: 5px;
+    background: rgba(255,255,255,.028); padding: 11px 11px 10px;
+    transition: border-color .3s ease, background .3s ease;
+  }
+  .slot .tick { font: 500 13px var(--mono); color: var(--dark-muted); transition: color .3s ease; }
+  .slot .px { font: 10.5px var(--mono); color: #7d8470; margin-top: 3px; }
+  .slot .state {
+    font: 500 8px var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: #6d7462; margin-top: 7px; min-height: 11px;
+  }
+  .slot.active { background: rgba(255,255,255,.07); border-color: var(--slot-accent); }
+  .slot.active .tick, .slot.active .state { color: var(--slot-accent); }
+  .slot.active .px { color: var(--dark-ink); }
+  .slot.next { border-color: #454a3e; }
+  .slot.next .state { color: var(--dark-muted); }
+  .slot .bar {
+    position: absolute; left: 0; bottom: 0; height: 2px;
+    background: var(--slot-accent); width: 0; transition: width 1s linear;
+  }
+
+  /* ---- notice ---- */
+  .notice {
+    display: flex; gap: 13px; align-items: flex-start;
+    border: 1px solid var(--sage-line); background: var(--sage-soft);
+    border-radius: 5px; padding: 13px 15px; margin-top: 16px;
+    font-size: 12.5px; line-height: 1.6; color: #4a5b34;
+  }
+  .notice .tag {
+    font: 500 8.5px var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    padding-right: 12px; border-right: 1px solid var(--sage-line);
+    white-space: nowrap; padding-top: 2px; flex-shrink: 0;
+  }
+  .notice b { font-weight: 600; }
+
+  /* ---- stats bar ---- */
+  .stats {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--panel); margin-top: 18px; padding: 16px 0;
+  }
+  .stats > div { padding: 0 20px; border-right: 1px solid var(--line); min-width: 0; }
+  .stats > div:last-child { border-right: 0; }
+  .stats strong {
+    display: block; margin-top: 8px; font-size: 19px; font-weight: 500;
+    letter-spacing: -.5px; font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .stats strong.sm { font-size: 14px; letter-spacing: 0; }
+  .stats strong.accent { color: var(--accent); transition: color .45s ease; }
+
+  /* ---- layout ---- */
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 18px; margin-top: 18px; align-items: start; }
+  .card { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  .card > header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 13px 18px; border-bottom: 1px solid var(--line);
+  }
+  .card > header .eyebrow { color: var(--ink); }
+  .card > header span:last-child { font: 10px var(--mono); color: var(--muted); }
+  .card .body { padding: 18px; }
+
+  /* ---- countdown ---- */
+  .cd .track { height: 3px; background: var(--soft); border-radius: 2px; overflow: hidden; }
+  .cd .fill { height: 100%; width: 0%; background: var(--accent); transition: width 1s linear, background .45s ease; }
+  .cd .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 9px; font: 10.5px var(--mono); color: var(--muted); }
+
+  /* ---- trade ---- */
+  .tabs { display: flex; gap: 3px; padding: 3px; background: var(--soft); border: 1px solid var(--line); border-radius: 5px; }
+  .tabs button {
+    flex: 1; padding: 8px; border-radius: 3px; background: none; color: var(--muted);
+    font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  }
+  .tabs button[aria-pressed="true"] { background: var(--panel); color: var(--buy); box-shadow: 0 1px 2px rgba(0,0,0,.07); }
+  .tabs button.sell[aria-pressed="true"] { color: var(--sell); }
+
+  .field { margin-top: 16px; }
+  .amount {
+    display: flex; align-items: center; gap: 8px; margin-top: 8px;
+    background: var(--bg); border: 1px solid var(--line-firm); border-radius: 5px; padding: 0 13px;
+  }
+  .amount input {
+    flex: 1; min-width: 0; border: 0; background: none; outline: none;
+    color: var(--ink); font: 400 22px var(--sans); padding: 12px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .amount input::placeholder { color: #b3b1a2; }
+  .amount .unit { font: 500 12px var(--mono); color: var(--muted); }
+
+  .receive { margin-top: 14px; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; }
+  .receive strong { display: block; margin-top: 8px; font-size: 21px; font-weight: 500; overflow-wrap: anywhere; }
+  .receive strong.warn { color: var(--sell); font-size: 15px; }
+  .rows { margin-top: 13px; font: 11px var(--mono); color: var(--muted); }
+  .rows div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; }
+
+  button.go {
+    width: 100%; margin-top: 15px; padding: 12px; border-radius: 5px;
+    background: var(--ink); color: var(--panel); border: 1px solid var(--ink);
+    box-shadow: 0 2px 0 rgba(0,0,0,.09);
+    font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase;
+    transition: transform .14s ease;
+  }
+  button.go:hover:not(:disabled) { transform: translateY(-1px); }
+
+  .msg { margin-top: 11px; font-size: 12px; color: var(--muted); min-height: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+  .msg.err { color: var(--sell); }
+  .msg.ok { color: var(--buy); }
+  .msg a { color: var(--sage); text-decoration: underline; }
+
+  /* ---- explainer ---- */
+  .how .body { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  .how p { margin: 0 0 13px; }
+  .how p:last-child { margin: 0; }
+  .how b { color: var(--ink); font-weight: 600; }
+  .how code { font: 12px var(--mono); color: var(--sage); background: var(--sage-soft); padding: 1px 5px; border-radius: 3px; }
+
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+  .principles > div { border-top: 2px solid var(--line-firm); padding-top: 12px; }
+  .principles strong { display: block; font-size: 12.5px; font-weight: 600; margin-top: 7px; }
+  .principles small { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+
+  footer {
+    margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line);
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    font: 10px var(--mono); letter-spacing: .06em; color: var(--muted);
+  }
+  footer a:hover { color: var(--accent); }
+  footer .grow { flex: 1; }
+
+  @media (max-width: 880px) {
+    .cols { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); padding: 0; }
+    .stats > div { padding: 15px 16px; border-bottom: 1px solid var(--line); }
+    .stats > div:nth-child(odd) { border-right: 1px solid var(--line); }
+    .slots { grid-template-columns: repeat(2, 1fr); }
+    .principles { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="strip">
+  <span class="dot"></span>
+  <span>ROTATOR</span>
+  <span class="sep">·</span>
+  <span>cluster <b id="cluster">—</b></span>
+  <span class="sep">·</span>
+  <span>oracle <b id="oracle-badge">—</b></span>
+  <span class="sep">·</span>
+  <a id="pool-link" href="#" target="_blank" rel="noopener noreferrer">pool —</a>
+</div>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div>
+      <div class="word">ROT<i>A</i>TOR</div>
+      <div class="sub">pairing desk · solana</div>
+    </div>
+    <div class="grow"></div>
+    <a href="#how">how it works</a>
+  </div>
+
+  <section class="hero">
+    <span class="eyebrow">the pairing turns every five minutes</span>
+    <h1>One token, priced against <em id="hero-sym">—</em>.</h1>
+    <p>
+      A constant-product pool holding SWAP and SOL. An oracle index scales the token side, so the
+      price tracks whichever tokenized stock is currently paired — and the pairing advances through
+      all five, in order, forever.
+    </p>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <div class="notice" id="notice">
+    <span class="tag">notice</span>
+    <span id="notice-body"><b>Loading.</b></span>
+  </div>
+
+  <div class="stats">
+    <div><span class="eyebrow">paired to</span><strong class="accent" id="paired">—</strong></div>
+    <div><span class="eyebrow">index</span><strong id="index">—</strong></div>
+    <div><span class="eyebrow">price</span><strong class="sm" id="price">—</strong></div>
+    <div><span class="eyebrow">reserves</span><strong class="sm" id="reserves">—</strong></div>
+    <div><span class="eyebrow">fee</span><strong class="sm" id="fee">—</strong></div>
+  </div>
+
+  <div class="cols">
+
+    <section class="card">
+      <header><span class="eyebrow">pool</span><span id="pool-state">reading…</span></header>
+      <div class="body">
+        <div class="cd">
+          <div class="track"><div class="fill" id="cd-fill"></div></div>
+          <div class="row"><span id="cd-text">—</span><span id="cd-next">—</span></div>
+        </div>
+        <div class="principles">
+          <div>
+            <span class="eyebrow">locked</span>
+            <strong>No withdraw exists</strong>
+            <small>The program has no instruction to remove liquidity. Not for the authority either.</small>
+          </div>
+          <div>
+            <span class="eyebrow">scheduled</span>
+            <strong>Five stocks, in order</strong>
+            <small>AAPL, TSLA, NVDA, MSFT, AMZN — a full cycle every twenty-five minutes.</small>
+          </div>
+          <div>
+            <span class="eyebrow">quoted</span>
+            <strong>Same maths as the chain</strong>
+            <small>Quotes here are pinned to the program by 392 generated vectors.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header><span class="eyebrow">trade</span><span id="wallet-state">not connected</span></header>
+      <div class="body">
+        <div class="tabs">
+          <button id="tab-buy" aria-pressed="true">Buy</button>
+          <button id="tab-sell" class="sell" aria-pressed="false">Sell</button>
+        </div>
+
+        <div class="field">
+          <span class="eyebrow" id="in-label">You pay</span>
+          <div class="amount">
+            <input type="text" id="amount" inputmode="decimal" placeholder="0.0" autocomplete="off" />
+            <span class="unit" id="in-unit">SOL</span>
+          </div>
+        </div>
+
+        <div class="receive">
+          <span class="eyebrow">You receive</span>
+          <strong id="q-out">—</strong>
+          <div class="rows">
+            <div><span>Minimum after 1% slippage</span><span id="q-min">—</span></div>
+            <div><span>Price impact</span><span id="q-impact">—</span></div>
+          </div>
+        </div>
+
+        <button class="go" id="go" disabled>Connect wallet</button>
+        <div class="msg" id="msg"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="card how" id="how">
+    <header><span class="eyebrow">how it works</span><span>and what would break it</span></header>
+    <div class="body">
+      <p>
+        The index is applied to the <b>token</b> side of the curve, never the quote side. Both give a
+        price proportional to the index, but scaling the quote side makes the pool promise SOL it does
+        not hold: at an index of 2 a large sell demands 181% of the reserve, at 10 it demands 909%.
+        Scaling the token side bounds the payout by construction.
+      </p>
+      <p>
+        <b>At an index of exactly 1.0 the two are identical.</b> That is what makes it dangerous — the
+        wrong one looks perfectly correct until the pairing has actually moved.
+      </p>
+      <p>
+        When a trade would exceed what the curve can honour, the quote returns <code>null</code> and
+        this page says so, rather than filling you short and keeping the difference.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <a id="f-program" href="#" target="_blank" rel="noopener noreferrer">program</a>
+    <a id="f-pool" href="#" target="_blank" rel="noopener noreferrer">pool</a>
+    <a id="f-mint" href="#" target="_blank" rel="noopener noreferrer">mint</a>
+    <span class="grow"></span>
+    <span id="f-note"></span>
+  </footer>
+
+</div>
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
