@@ -41,7 +41,7 @@ let clockOffset = 0;
 const now = () => Date.now() / 1000 + clockOffset;
 const t0 = () => (cfg.t0 > 0 ? cfg.t0 : 0); // before launch: a preview on the epoch
 
-// ---- the rotation: hero, slots, strip ------------------------------------------
+// ---- the rotation: hero tiles, coins, strip ------------------------------------------
 
 let shownRound = null; // the window currently drawn
 
@@ -52,15 +52,51 @@ function current() {
   return { prestart: false, w, left: w.endsAt - t };
 }
 
-function buildSlots() {
+// The five glossy tiles from the art. Where each sits is CSS (.c-AAPL and so
+// on), so the layout matches the art while the order stays the rotation's.
+function buildTiles() {
   $("slots").innerHTML = STOCKS.map((s, i) => `
-    <div class="slot" id="slot${i}" style="--slot-accent:${s.accent}">
-      <div class="tick">${s.symbol}</div>
-      <div class="co">${s.name}</div>
-      <div class="px" id="px${i}">—</div>
-      <div class="state" id="st${i}"></div>
-      <div class="bar" id="bar${i}"></div>
+    <div class="cell c-${s.symbol}" id="slot${i}">
+      <div class="face f-${s.symbol}"><span class="sym">${s.symbol}</span></div>
+      <div class="cap">
+        <div class="nm">${s.name}</div>
+        <div class="px" id="px${i}">—</div>
+        <div class="st" id="st${i}"></div>
+        <div class="bar" id="bar${i}"></div>
+      </div>
     </div>`).join("");
+}
+
+// Coins drifting in the burst, placed around the edges so none sits on the
+// wordmark. Positions are fixed rather than random so the page looks the same
+// every visit.
+const COINS = [
+  [2, 8, 58, "gold"], [30, 3, 34, "holo"], [47, 70, 40, "gold"], [3, 62, 44, "holo"], [15, 88, 30, "gold"],
+  [52, 8, 26, "gold"], [93, 5, 50, "holo"], [96, 44, 36, "gold"], [89, 84, 62, "gold"], [60, 90, 30, "holo"],
+  [72, 48, 22, "gold"], [38, 92, 24, "gold"],
+];
+function buildCoins() {
+  $("coins").innerHTML = COINS.map(([x, y, d, kind], i) =>
+    `<i class="coin ${kind}" style="left:${x}%;top:${y}%;--d:${d}px;--tilt:${40 + ((i * 13) % 30)}deg;--spin:${(i * 47) % 360}deg;--dur:${3 + (i % 4) * 0.7}s;--delay:-${i * 0.6}s"></i>`).join("");
+}
+
+// When the rotation turns, the new stock's tile throws a handful of coins.
+function flingCoins(i) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const tile = document.querySelector(`#slot${i} .face`);
+  const hero = document.querySelector(".hero");
+  if (!tile || !hero) return;
+  const t = tile.getBoundingClientRect(), h = hero.getBoundingClientRect();
+  for (let k = 0; k < 14; k++) {
+    const a = (k / 14) * Math.PI * 2 + Math.random() * 0.4;
+    const r = 70 + Math.random() * 90;
+    const c = document.createElement("i");
+    c.className = "spark";
+    c.style.cssText = `left:${t.left - h.left + t.width / 2}px;top:${t.top - h.top + t.height / 2}px;` +
+      `--dx:${Math.cos(a) * r}px;--dy:${Math.sin(a) * r + 60}px;--rot:${Math.round(Math.random() * 720 - 360)}deg`;
+    hero.appendChild(c);
+    setTimeout(() => c.remove(), 1400);
+  }
 }
 
 function renderClock() {
@@ -71,6 +107,7 @@ function renderClock() {
   const frac = prestart ? 0 : 1 - left / PERIOD_SECS;
 
   const turned = shownRound !== w.round;
+  const first = shownRound === null;
   if (turned) {
     shownRound = w.round;
     document.documentElement.style.setProperty("--accent", stock.accent);
@@ -103,10 +140,19 @@ function renderClock() {
 
   STOCKS.forEach((s, i) => {
     const k = (i - slot + N) % N;
-    $(`slot${i}`).className = "slot" + (k === 0 ? " active" : k === 1 ? " next" : "");
+    const cell = $(`slot${i}`);
+    cell.classList.toggle("on", k === 0);
+    cell.classList.toggle("next", k === 1);
+    if (k === 0 && turned && !first) {
+      cell.classList.remove("pop");
+      void cell.offsetWidth;
+      cell.classList.add("pop");
+    }
     $(`st${i}`).textContent = k === 0 ? (prestart ? "first" : "paying now") : `in ${mmss(left + (k - 1) * PERIOD_SECS)}`;
     $(`bar${i}`).style.width = k === 0 ? `${(frac * 100).toFixed(2)}%` : "0";
   });
+
+  if (turned && !first) flingCoins(slot);
 
   if (launched) {
     $("strip-state").textContent = prestart ? "LAUNCHED · ROTATION STARTS SOON" : `LIVE · ROUND ${w.round.toLocaleString("en-US")}`;
@@ -339,7 +385,7 @@ function renderLookup() {
     const bal = lookupBalances[i];
     const usd = market.prices[i] && bal ? fmtUsd(bal * market.prices[i]) : "";
     const got = received[i] ? `<div class="g">+${fmtShares(toUi(received[i], i, market))} in rounds shown</div>` : "";
-    return `<div class="h" style="--c:${s.accent}"><span class="s">${s.symbol}</span><span>${s.name}${got}</span>
+    return `<div class="h"><span class="face f-${s.symbol}"><span class="sym">${s.symbol}</span></span><span>${s.name}${got}</span>
       <span class="v"><b>${fmtShares(bal)}</b>${usd}</span></div>`;
   }).join("");
 
@@ -393,7 +439,8 @@ function renderStatic() {
 
 // ---- start ------------------------------------------------------------------------------------
 
-buildSlots();
+buildTiles();
+buildCoins();
 renderStatic();
 renderClock();
 setInterval(renderClock, 1000);

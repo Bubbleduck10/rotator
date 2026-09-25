@@ -58,7 +58,7 @@ export function roundHtml(r, ctx) {
     const what = e.kind === "in"
       ? `${shares(e.amount)} ${s.symbol} arrived from outside. Not a round.`
       : `${shares(e.amount)} ${s.symbol} left the wallet with SOL coming back. Not a payout.`;
-    return `<div class="round other"><div class="chip">${s.symbol}</div><div class="what">${what}<div class="meta">${txLink(e.signature, "transaction")}</div></div>${when}</div>`;
+    return `<div class="round other"><div class="chip face f-none"><span class="sym">${s.symbol}</span></div><div class="what">${what}<div class="meta">${txLink(e.signature, "transaction")}</div></div>${when}</div>`;
   }
 
   const n = r.recipients.size;
@@ -85,6 +85,6 @@ export function roundHtml(r, ctx) {
         .join("")}</div></details>`
     : "";
 
-  return `<div class="round"><div class="chip" style="--c:${s.accent}">${s.symbol}</div>
+  return `<div class="round"><div class="chip face f-${s.symbol}"><span class="sym">${s.symbol}</span></div>
     <div class="what">${what}<span class="num">${usd}</span><div class="meta">${links}</div></div>${when}${who}</div>`;
 }
