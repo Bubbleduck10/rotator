@@ -464,9 +464,112 @@
   }
   footer .grow { flex: 1; }
 
+  /* ---- intro: the curtain that plays once per session (js/intro.js) ---- */
+  #intro {
+    position: fixed; inset: 0; z-index: 200; overflow: hidden; background: #06030d;
+    --ts: 62px; --fan: 120px; /* tile size, and the fan's half-width */
+    /* failsafe: if the script never runs, the curtain still lifts */
+    animation: intro-failsafe .01s linear 7s forwards;
+  }
+  @keyframes intro-failsafe { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+  @media (min-width: 768px) { #intro { --ts: 108px; --fan: 290px; } }
+  #intro .face { --s: var(--ts); }
+  .no-intro #intro { display: none; }
+  html.intro-playing, html.intro-playing body { overflow: hidden; }
+  html.intro-playing .hero .wm, html.intro-playing .hero .cell .face { visibility: hidden; }
+  #intro .i-bg, #intro .i-rays, #intro .i-veil, #intro .i-flash, #intro .i-streak, #intro .i-stage, #intro .i-foot { position: absolute; pointer-events: none; }
+  .i-bg {
+    inset: 0; opacity: 0;
+    background:
+      radial-gradient(circle at 50% 44%, #fffbe0 0, #ffe985 7%, rgba(255,200,40,.85) 16%, rgba(255,140,0,0) 40%),
+      conic-gradient(from 200deg at 50% 44%, #ff2fd0, #8a3dff, #2f8bff, #19e3ff, #3dff6e, #ffe23d, #ff8a1f, #ff2f4f, #ff2fd0);
+    animation: i-fade-in 1.2s ease-out .25s forwards, i-settle 3.2s ease-out .25s both;
+  }
+  @keyframes i-fade-in { to { opacity: 1; } }
+  @keyframes i-settle { from { transform: scale(1.08); } to { transform: scale(1); } }
+  .i-rays {
+    left: 50%; top: 44%; width: 260vmax; height: 260vmax; margin: -130vmax 0 0 -130vmax; opacity: 0;
+    background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.24) 0deg 1deg, transparent 1deg 7deg);
+    animation: i-rays-in 1.4s ease-out .38s forwards, spin 90s linear infinite;
+  }
+  @keyframes i-rays-in { to { opacity: .6; } }
+  .i-veil { inset: 0; background: radial-gradient(ellipse 72% 78% at 50% 44%, transparent 32%, rgba(10,4,22,.5) 72%, rgba(6,3,13,.92) 100%); }
+  .i-flash {
+    left: 50%; top: 44%; width: 60vmax; height: 60vmax; margin: -30vmax 0 0 -30vmax; border-radius: 50%; z-index: 3; opacity: 0;
+    background: radial-gradient(closest-side, #fff 0%, rgba(255,246,200,.95) 12%, rgba(255,200,60,.6) 32%, rgba(255,47,208,.16) 55%, transparent 72%);
+    animation: i-flash 1.13s .06s both;
+  }
+  @keyframes i-flash {
+    0% { transform: scale(.02); opacity: 0; animation-timing-function: ease-in; }
+    22% { transform: scale(.06); opacity: 1; animation-timing-function: ease-in; }
+    40% { transform: scale(.4); opacity: 1; animation-timing-function: ease-out; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+  .i-streak {
+    left: -10%; right: -10%; top: 44%; height: 2px; margin-top: -1px; z-index: 3; opacity: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.9) 30%, #fff 50%, rgba(255,255,255,.9) 70%, transparent);
+    box-shadow: 0 0 24px 6px rgba(255,220,120,.55);
+    animation: i-streak .75s ease-out .28s both;
+  }
+  @keyframes i-streak { 0% { transform: scaleX(0); opacity: 0; } 35% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1.1); opacity: 0; } }
+  .i-stage { inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px 6vh; }
+  .i-fan { position: relative; width: 100%; height: calc(var(--ts) * 1.55); margin-bottom: calc(var(--ts) * .22); }
+  .i-tile {
+    position: absolute; left: 50%; top: 50%;
+    --from: translate(calc(var(--fxi) * 100vw), calc(var(--fyi) * 100vh)) rotate(var(--fr)) scale(.12);
+    --to: translate(calc(var(--xi) * var(--fan)), calc(var(--yi) * var(--ts))) rotate(var(--r)) scale(1);
+    transform: translate(-50%,-50%) var(--from); opacity: 0; filter: blur(10px);
+    animation: i-tile .95s cubic-bezier(.3,1.4,.5,1) var(--d) both;
+  }
+  @keyframes i-tile {
+    from { transform: translate(-50%,-50%) var(--from); opacity: 0; filter: blur(10px); }
+    to { transform: translate(-50%,-50%) var(--to); opacity: 1; filter: blur(0px); }
+  }
+  .iwm {
+    position: relative; display: inline-block; text-align: left;
+    font: italic 900 clamp(54px, 10.5vw, 136px)/.86 var(--display); text-transform: uppercase; letter-spacing: -.005em;
+  }
+  .i-line { display: block; position: relative; width: max-content; }
+  .i-line .back, .i-line .front { display: block; perspective: 700px; }
+  .i-line .back {
+    position: absolute; left: 0; top: 0; color: #fff;
+    -webkit-text-stroke: .15em #06050a; paint-order: stroke fill;
+    filter: drop-shadow(0 .07em 0 #06050a) drop-shadow(0 0 .3em rgba(255,210,70,.55));
+  }
+  .i-line .front { position: relative; }
+  .iwm .ch { display: inline-block; animation: i-ch .75s cubic-bezier(.3,1.55,.5,1) var(--d) both; }
+  .i-line .front .ch {
+    color: transparent;
+    background-image: linear-gradient(105deg, transparent 40%, rgba(255,232,140,.95) 50%, transparent 60%), linear-gradient(180deg, #fff 0%, #fff 50%, #e4e5ee 51%, #a6aab8 100%);
+    background-size: 250% 100%, 100% 100%; background-repeat: no-repeat;
+    -webkit-background-clip: text; background-clip: text;
+    animation: i-ch .75s cubic-bezier(.3,1.55,.5,1) var(--d) both, i-shine 3.6s ease-in-out var(--sd) infinite;
+  }
+  @keyframes i-ch { from { opacity: 0; transform: translateY(.45em) rotateX(-80deg) scale(1.4); } to { opacity: 1; transform: none; } }
+  @keyframes i-shine { 0% { background-position: 200% 0, 0 0; } 32%, 100% { background-position: -100% 0, 0 0; } }
+  .i-ring {
+    position: absolute; left: 50%; top: 50%; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
+    border: 3px solid rgba(255,214,80,.9); box-shadow: 0 0 30px rgba(255,200,60,.6), inset 0 0 20px rgba(255,200,60,.4);
+    opacity: 0; pointer-events: none; animation: i-ring .95s ease-out 1.45s both;
+  }
+  @keyframes i-ring { 0% { transform: scale(.4); opacity: 0; } 15% { transform: scale(.8); opacity: .95; } 100% { transform: scale(5); opacity: 0; } }
+  .i-tag {
+    margin-top: 26px; padding: 8px 18px; border-radius: 99px; text-align: center;
+    background: rgba(8,4,18,.62); border: 1px solid rgba(255,255,255,.14);
+    font: italic 800 clamp(10px, 1.4vw, 14px) var(--display); letter-spacing: .28em; text-transform: uppercase; color: #fff;
+    opacity: 0; animation: i-up .6s ease-out 1.75s both;
+  }
+  @keyframes i-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .i-foot {
+    left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); z-index: 2; text-align: center;
+    font: 10px var(--mono); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.65);
+    opacity: 0; animation: i-up .6s ease-out 1.2s both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .rays, .coin, .cell.on .face, .pitch h2 em.swap { animation: none; }
     .spark { display: none; }
+    #intro { display: none; }
     .cell .face, .cd .fill, .cap .bar { transition: none; }
   }
 
@@ -502,10 +605,20 @@
     .round .when { grid-column: 2; text-align: left; }
     .mast nav { gap: 14px; }
     .brand .wm { font-size: 16px; }
+    .i-tag { letter-spacing: .12em; }
   }
 </style>
 </head>
 <body>
+<script>
+  // Before first paint: play the intro once per session, never under reduced motion.
+  (function () {
+    var seen = false;
+    try { seen = !!sessionStorage.getItem("sr-intro"); } catch (e) {}
+    if (seen || matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("no-intro");
+  })();
+</script>
+<div id="intro" aria-hidden="true"></div>
 
 <div class="strip">
   <span class="dot" id="dot"></span>
@@ -667,6 +780,7 @@
   </footer>
 
 </div>
+<script type="module" src="./js/intro.js"></script>
 <script type="module" src="./js/app.js"></script>
 </body>
 </html>
