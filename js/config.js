@@ -1,51 +1,49 @@
-// Where this page points, and what it is honest about.
+// Where the page points. Everything that changes at launch is in CONFIG.
+//
+// Pre-launch (mint empty): the rotation runs as a preview on its own clock, the
+// stats and rounds feed say plainly that nothing has launched, and no number on
+// the page pretends to be live.
 
 export const CONFIG = {
-  cluster: "devnet",
-  rpcUrl: "https://api.devnet.solana.com",
-  programId: "5ZCcQQtgHnhKmHMy2ct2cUJmvEC6YQTzTgnrnxtWpPzG",
-  mint: "gnoH1WayBSzzUpqc2A637zxJuEkSzKbSF2A73YsuNkB",
-  pool: "9Aj6PvL6pnf2eFC2TTKG6PEzX7E6Ar4Ur5Qwp2CmCZ6C",
-  explorer: "https://explorer.solana.com/{kind}/{id}?cluster=devnet",
-
-  /**
-   * The deployed pool runs in ORACLE_TEST mode on mock feeds, not on Pyth.
-   *
-   * This matters for what the page is allowed to claim. The live Pyth prices
-   * shown alongside are the ones a MAINNET pool would read; they are not what
-   * is moving this pool's index. Putting them side by side without saying so
-   * would imply a connection that does not exist, which is the single most
-   * misleading thing this page could do.
-   */
-  oracleMode: "test",
-
-  xDecimals: 6,
-  xSymbol: "SWAP",
+  /** $ROTATOR's mint — set at launch */
+  mint: "",
+  /** unix seconds the rotation started — must equal the keeper's T0 */
+  t0: 0,
+  /** the wallet that receives the creator fees and pays holders */
+  payout: "4LN3aSbKKuBvirqaZBPo4VKSUSYqq282Hsc2RVTcYvcp",
+  /** where the 5% operations cut is swept */
+  ops: "E82hb8ssuhX3bi1cWPFuMNeGcCCv6rSp8bByMXSnTWqN",
+  /** keyless and browser-reachable; api.mainnet-beta refuses browsers */
+  rpc: "https://solana-rpc.publicnode.com",
+  /** the coin's StonkFun page and X account — set at launch */
+  stonkfun: "",
+  x: "",
 };
 
-/**
- * Symbol order must match the feeds passed at initialize — the program stores
- * feed addresses, not tickers, so nothing on chain can correct a wrong order
- * here. It would simply mislabel every rotation.
- */
-export const SYMBOLS = ["AAPL", "TSLA", "NVDA", "MSFT", "AMZN"];
+export const PERIOD_SECS = 300;
 
 /**
- * One accent per stock, so the whole page tints as the pairing rotates — the
- * mechanic is legible at a glance rather than buried in a field.
+ * Rotation order, pinned by mint — the same five, in the same order, as the
+ * keeper. The keeper decides what is paid; this list only has to agree with it
+ * so the page names the right stock for each window.
  *
- * These are deliberately MID-TONE. Each one has to stay legible in two places
- * at once: against the near-black hero panel and against warm paper in the
- * masthead and stat row. A colour picked for either background alone fails on
- * the other — the earlier silver read well on black and vanished on paper.
+ * Accents are mid-tone so they read on the dark hero and on paper alike.
  */
-export const ACCENTS = {
-  AAPL: "#5b7a8c",
-  TSLA: "#b0433c",
-  NVDA: "#5d8a2b",
-  MSFT: "#2c7cb0",
-  AMZN: "#bd7a1c",
+export const STOCKS = [
+  { symbol: "AAPL", name: "Apple", mint: "XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp", pyth: "D9uk39pqZMcnmtPP9WeC8cREUpKZmyXLga9mSQ79SphW", accent: "#5b7a8c" },
+  { symbol: "TSLA", name: "Tesla", mint: "XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB", pyth: "FQB8c4zB8Emrp9W8bmyk6GanCLq4aRytHYPDAnaEpq9z", accent: "#b0433c" },
+  { symbol: "NVDA", name: "NVIDIA", mint: "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh", pyth: "5VETJ8h3p4JrESYrzhjTDAWPEjDjfcnduqe9CjxgqBNd", accent: "#5d8a2b" },
+  { symbol: "MSFT", name: "Microsoft", mint: "XspzcW1PRtgf6Wj92HCiZdjzKCyFekVD8P5Ueh3dRMX", pyth: "EKhrgXYwqsjgxF71Gxznui1zdoeqgxJzzPzfefEmm5un", accent: "#2c7cb0" },
+  { symbol: "AMZN", name: "Amazon", mint: "Xs3eBt7uRfJX8QUs4suhyU8p2M6DoUDrJyWBa8LLZsg", pyth: "4eT5d4SJ7GjD8HMpMysSNoPV7RBVTBGzoSEkynmPLMPS", accent: "#bd7a1c" },
+];
+
+/** never paid, whatever they hold — mirrors the keeper's exclusions() */
+export const EXCLUDED = {
+  [CONFIG.payout]: "the payout wallet",
+  [CONFIG.ops]: "the ops wallet",
+  "1nc1nerator11111111111111111111111111111111": "the burn address",
 };
 
-export const explorerUrl = (kind, id) =>
-  CONFIG.explorer.replace("{kind}", kind).replace("{id}", id);
+export const XSTOCK_DECIMALS = 8;
+
+export const solscan = (kind, id) => `https://solscan.io/${kind}/${id}`;

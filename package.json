@@ -1,16 +1,14 @@
 {
   "name": "@callout/rotator-site",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Standalone front end for ROTATOR",
+  "description": "Standalone site for $ROTATOR: the rotation, the rounds read from the chain, and a wallet lookup",
   "scripts": {
-    "build": "node build.mjs"
+    "test": "node --test test/*.test.mjs",
+    "serve": "node serve.mjs"
   },
-  "dependencies": {
-    "@solana/web3.js": "^1.99.0"
-  },
-  "overrides": {
+  "devDependencies": {
     "@solana/web3.js": "^1.99.0"
   }
 }

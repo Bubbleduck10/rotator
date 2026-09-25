@@ -3,8 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ROTATOR</title>
-<meta name="description" content="A Solana pool whose pairing rotates through five tokenized stocks every five minutes." />
+<title>ROTATOR · paid in the next stock, every five minutes</title>
+<meta name="description" content="Hold $ROTATOR and its trading fees are paid to you in tokenized stock. The stock changes every five minutes: Apple, Tesla, NVIDIA, Microsoft, Amazon." />
+<meta property="og:title" content="ROTATOR" />
+<meta property="og:description" content="One coin, five stocks. Every five minutes, holders are paid in the next one." />
+<meta property="og:image" content="https://bubbleduck10.github.io/rotator/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -19,7 +24,6 @@
     --line: #e2e0d3;
     --line-firm: #cfccbb;
 
-    /* The dark used for the hero and the status strip. */
     --dark: #1e211b;
     --dark-line: #2e322a;
     --dark-ink: #f2f1e8;
@@ -28,11 +32,11 @@
     --sage: #6f8a45;
     --sage-soft: #eaf1dc;
     --sage-line: #cfdfb0;
+    --warn: #a8512f;
+    --warn-soft: #f6e9e1;
+    --warn-line: #e5c6b5;
 
-    --buy: #4f7a33;
-    --sell: #a8512f;
-
-    /* Set from JS to the active stock — the page tints as the pairing turns. */
+    /* Set from JS to the stock being paid. The page tints as it turns. */
     --accent: #6f8a45;
 
     --mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -42,68 +46,66 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
   button { font: inherit; border: 0; cursor: pointer; }
-  button:disabled { cursor: not-allowed; opacity: .45; }
   input { font: inherit; }
+  [hidden] { display: none !important; }
 
-  /* tiny mono label, used above every number on the page */
   .eyebrow {
-    font: 500 9.5px var(--mono);
-    letter-spacing: .13em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: block;
+    font: 500 9.5px var(--mono); letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted); display: block;
   }
+  .mono { font-family: var(--mono); }
+  .num { font-variant-numeric: tabular-nums; }
 
   /* ---- status strip ---- */
   .strip {
     background: var(--dark); color: var(--dark-muted);
     font: 10.5px var(--mono); letter-spacing: .04em;
-    height: 30px; display: flex; align-items: center;
-    justify-content: center; gap: 11px; padding: 0 16px;
+    min-height: 30px; display: flex; align-items: center; flex-wrap: wrap;
+    justify-content: center; gap: 4px 11px; padding: 6px 16px;
   }
   .strip b { color: var(--dark-ink); font-weight: 500; }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #93b45c; display: inline-block; flex-shrink: 0;
-  }
+  .strip b.acc { color: var(--accent); transition: color .45s ease; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #c9a24a; display: inline-block; flex-shrink: 0; }
+  .dot.live { background: #93b45c; box-shadow: 0 0 0 3px rgba(147,180,92,.18); }
   .strip .sep { opacity: .3; }
 
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 64px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 64px; }
 
   /* ---- masthead ---- */
   .mast {
-    display: flex; align-items: baseline; gap: 14px;
-    padding: 26px 0 20px; border-bottom: 1px solid var(--line);
-    flex-wrap: wrap;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 22px 0 18px; border-bottom: 1px solid var(--line);
   }
-  .word {
-    font: 600 27px var(--mono); letter-spacing: -1.6px;
-    text-transform: uppercase;
-  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 30px; height: 30px; border-radius: 7px; }
+  .word { font: 600 25px var(--mono); letter-spacing: -1.5px; text-transform: uppercase; }
   .word i { font-style: normal; color: var(--accent); transition: color .45s ease; }
-  .sub { font: 10px var(--mono); letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }
+  .sub { font: 10px var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
   .mast .grow { flex: 1; }
-  .mast a { font: 10.5px var(--mono); color: var(--muted); border-bottom: 1px solid transparent; }
-  .mast a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .mast nav { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .mast nav a { font: 10.5px var(--mono); color: var(--muted); border-bottom: 1px solid transparent; }
+  .mast nav a:hover { color: var(--ink); border-bottom-color: var(--line-firm); }
+  .mast nav a.buy {
+    color: var(--panel); background: var(--ink); border: 1px solid var(--ink);
+    padding: 6px 11px; border-radius: 4px; letter-spacing: .06em;
+  }
+  .mast nav a.buy:hover { color: var(--panel); transform: translateY(-1px); }
 
-  /* ---- hero: the rotation ---- */
+  /* ---- hero ---- */
   .hero {
     background: var(--dark); color: var(--dark-ink);
-    border: 1px solid var(--dark-line); border-radius: 7px;
-    margin-top: 22px; padding: 26px 28px 22px;
+    border: 1px solid var(--dark-line); border-radius: 8px;
+    margin-top: 22px; padding: 30px 30px 24px;
     position: relative; overflow: hidden;
+    display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 8px 30px; align-items: center;
   }
-  /* faint scanline, the only decorative thing on the page */
   .hero:after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.055) 4px);
@@ -111,50 +113,75 @@
   .hero > * { position: relative; z-index: 1; }
   .hero .eyebrow { color: var(--dark-muted); }
   .hero h1 {
-    font-size: clamp(25px, 3.2vw, 35px); font-weight: 500;
-    letter-spacing: -1.3px; line-height: 1.12; margin: 12px 0 6px;
+    font-size: clamp(30px, 4.4vw, 48px); font-weight: 500;
+    letter-spacing: -1.8px; line-height: 1.05; margin: 14px 0 12px;
   }
-  .hero h1 em { font-style: normal; color: var(--accent); transition: color .45s ease; }
-  .hero p { font-size: 13px; color: var(--dark-muted); margin: 0; max-width: 560px; line-height: 1.65; }
+  .hero h1 em { font-style: normal; color: var(--accent); transition: color .45s ease; display: inline-block; }
+  .hero h1 em.swap { animation: swapin .6s ease; }
+  @keyframes swapin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .hero p { font-size: 14px; color: var(--dark-muted); margin: 0; max-width: 540px; line-height: 1.7; }
 
-  .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 22px; }
+  .cd { margin-top: 24px; max-width: 420px; }
+  .cd .row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .cd strong { font: 500 34px var(--mono); letter-spacing: -1px; color: var(--dark-ink); font-variant-numeric: tabular-nums; }
+  .cd .to { font: 11px var(--mono); color: var(--dark-muted); }
+  .cd .to b { font-weight: 500; }
+  .cd .track { height: 3px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+  .cd .fill { height: 100%; width: 0%; background: var(--accent); transition: width 1s linear, background .45s ease; }
+
+  .orbit-wrap { display: flex; justify-content: center; }
+  #orbit { width: 100%; max-width: 330px; height: auto; display: block; overflow: visible; }
+  #ring { transition: transform 1.6s cubic-bezier(.6,.05,.25,1); transform-origin: 200px 200px; }
+  .bub { transition: opacity .8s ease; }
+  .bub .inner { transition: transform 1.6s cubic-bezier(.6,.05,.25,1); transform-box: fill-box; transform-origin: center; }
+  .bub .scale { transition: transform .8s ease; transform-box: fill-box; transform-origin: center; }
+  .bub .lbl { font: 600 15px var(--mono); fill: #fff; letter-spacing: -.3px; }
+  .bub:not(.on) { opacity: .5; }
+  .bub.on .scale { transform: scale(1.22); }
+  #progress { transition: stroke-dashoffset 1s linear, stroke .45s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    #ring, .bub .inner, .bub .scale, #progress, .cd .fill { transition: none; }
+    .hero h1 em.swap { animation: none; }
+  }
+
+  .slots { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 16px; }
   .slot {
     position: relative; overflow: hidden;
     border: 1px solid var(--dark-line); border-radius: 5px;
-    background: rgba(255,255,255,.028); padding: 11px 11px 10px;
+    background: rgba(255,255,255,.028); padding: 11px 12px 10px;
     transition: border-color .3s ease, background .3s ease;
   }
   .slot .tick { font: 500 13px var(--mono); color: var(--dark-muted); transition: color .3s ease; }
-  .slot .px { font: 10.5px var(--mono); color: #7d8470; margin-top: 3px; }
+  .slot .co { font-size: 11px; color: #7d8470; }
+  .slot .px { font: 10.5px var(--mono); color: #8a917c; margin-top: 6px; font-variant-numeric: tabular-nums; }
   .slot .state {
-    font: 500 8px var(--mono); letter-spacing: .14em; text-transform: uppercase;
-    color: #6d7462; margin-top: 7px; min-height: 11px;
+    font: 500 8.5px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+    color: #6d7462; margin-top: 7px; min-height: 11px; font-variant-numeric: tabular-nums;
   }
   .slot.active { background: rgba(255,255,255,.07); border-color: var(--slot-accent); }
   .slot.active .tick, .slot.active .state { color: var(--slot-accent); }
   .slot.active .px { color: var(--dark-ink); }
   .slot.next { border-color: #454a3e; }
   .slot.next .state { color: var(--dark-muted); }
-  .slot .bar {
-    position: absolute; left: 0; bottom: 0; height: 2px;
-    background: var(--slot-accent); width: 0; transition: width 1s linear;
-  }
+  .slot .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--slot-accent); width: 0; transition: width 1s linear; }
 
   /* ---- notice ---- */
   .notice {
     display: flex; gap: 13px; align-items: flex-start;
     border: 1px solid var(--sage-line); background: var(--sage-soft);
     border-radius: 5px; padding: 13px 15px; margin-top: 16px;
-    font-size: 12.5px; line-height: 1.6; color: #4a5b34;
+    font-size: 13px; line-height: 1.6; color: #4a5b34;
   }
+  .notice.pre { border-color: #e4d6a8; background: #f7f0da; color: #6b5a26; }
   .notice .tag {
     font: 500 8.5px var(--mono); letter-spacing: .14em; text-transform: uppercase;
-    padding-right: 12px; border-right: 1px solid var(--sage-line);
+    padding-right: 12px; border-right: 1px solid currentColor; opacity: .85;
     white-space: nowrap; padding-top: 2px; flex-shrink: 0;
   }
   .notice b { font-weight: 600; }
+  .notice code { font: 12px var(--mono); overflow-wrap: anywhere; }
 
-  /* ---- stats bar ---- */
+  /* ---- stats ---- */
   .stats {
     display: grid; grid-template-columns: repeat(5, 1fr);
     border: 1px solid var(--line); border-radius: 6px;
@@ -164,235 +191,284 @@
   .stats > div:last-child { border-right: 0; }
   .stats strong {
     display: block; margin-top: 8px; font-size: 19px; font-weight: 500;
-    letter-spacing: -.5px; font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
+    letter-spacing: -.5px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
   }
-  .stats strong.sm { font-size: 14px; letter-spacing: 0; }
   .stats strong.accent { color: var(--accent); transition: color .45s ease; }
+  .stats strong.quiet { color: var(--line-firm); font-size: 14px; letter-spacing: 0; padding-top: 4px; }
+  .stats small { display: block; font: 10px var(--mono); color: var(--muted); margin-top: 2px; }
 
-  /* ---- layout ---- */
-  .cols { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 18px; margin-top: 18px; align-items: start; }
-  .card { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  /* ---- cards ---- */
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: 18px; margin-top: 18px; align-items: start; }
+  .card { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); margin-top: 18px; min-width: 0; }
+  .cols .card { margin-top: 0; }
   .card > header {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     padding: 13px 18px; border-bottom: 1px solid var(--line);
   }
   .card > header .eyebrow { color: var(--ink); }
-  .card > header span:last-child { font: 10px var(--mono); color: var(--muted); }
+  .card > header > span:last-child { font: 10px var(--mono); color: var(--muted); }
   .card .body { padding: 18px; }
 
-  /* ---- countdown ---- */
-  .cd .track { height: 3px; background: var(--soft); border-radius: 2px; overflow: hidden; }
-  .cd .fill { height: 100%; width: 0%; background: var(--accent); transition: width 1s linear, background .45s ease; }
-  .cd .row { display: flex; justify-content: space-between; gap: 10px; margin-top: 9px; font: 10.5px var(--mono); color: var(--muted); }
-
-  /* ---- trade ---- */
-  .tabs { display: flex; gap: 3px; padding: 3px; background: var(--soft); border: 1px solid var(--line); border-radius: 5px; }
-  .tabs button {
-    flex: 1; padding: 8px; border-radius: 3px; background: none; color: var(--muted);
-    font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  /* ---- rounds ---- */
+  .round { display: grid; grid-template-columns: 58px minmax(0,1fr) auto; gap: 4px 14px; padding: 13px 18px; border-bottom: 1px solid var(--line); }
+  .round:last-child { border-bottom: 0; }
+  .chip {
+    font: 500 11px var(--mono); color: #fff; background: var(--c); border-radius: 4px;
+    padding: 4px 0; text-align: center; align-self: start; letter-spacing: .02em;
   }
-  .tabs button[aria-pressed="true"] { background: var(--panel); color: var(--buy); box-shadow: 0 1px 2px rgba(0,0,0,.07); }
-  .tabs button.sell[aria-pressed="true"] { color: var(--sell); }
+  .round .what { font-size: 13.5px; min-width: 0; }
+  .round .what b { font-weight: 600; }
+  .round .what .num { color: var(--muted); }
+  .round .meta { font: 10.5px var(--mono); color: var(--muted); margin-top: 3px; }
+  .round .meta a { color: var(--sage); border-bottom: 1px solid var(--sage-line); }
+  .round .when { font: 10.5px var(--mono); color: var(--muted); text-align: right; white-space: nowrap; }
+  .round details { grid-column: 2 / -1; margin-top: 4px; }
+  .round summary { font: 10.5px var(--mono); color: var(--muted); cursor: pointer; list-style: none; }
+  .round summary::-webkit-details-marker { display: none; }
+  .round summary:before { content: '+ '; }
+  .round details[open] summary:before { content: '− '; }
+  .who { margin-top: 6px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 12px; font: 11px var(--mono); max-height: 220px; overflow: auto; }
+  .who span:nth-child(even) { text-align: right; color: var(--muted); }
+  .who a:hover { color: var(--sage); }
+  .round.other { opacity: .75; }
+  .round.other .chip { background: var(--line-firm); color: var(--ink); }
+  .empty { padding: 26px 18px; font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .empty b { color: var(--ink); font-weight: 600; }
+  .more { display: block; width: calc(100% - 36px); margin: 12px 18px 16px; padding: 9px; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); font: 500 11px var(--mono); color: var(--ink); letter-spacing: .06em; }
+  .more:hover { border-color: var(--line-firm); }
+  .more:disabled { opacity: .5; cursor: default; }
 
-  .field { margin-top: 16px; }
-  .amount {
-    display: flex; align-items: center; gap: 8px; margin-top: 8px;
-    background: var(--bg); border: 1px solid var(--line-firm); border-radius: 5px; padding: 0 13px;
+  /* ---- lookup ---- */
+  .lookup form { display: flex; gap: 6px; }
+  .lookup input {
+    flex: 1; min-width: 0; border: 1px solid var(--line-firm); background: var(--bg);
+    border-radius: 4px; padding: 9px 11px; font: 12px var(--mono); color: var(--ink); outline: none;
   }
-  .amount input {
-    flex: 1; min-width: 0; border: 0; background: none; outline: none;
-    color: var(--ink); font: 400 22px var(--sans); padding: 12px 0;
-    font-variant-numeric: tabular-nums;
-  }
-  .amount input::placeholder { color: #b3b1a2; }
-  .amount .unit { font: 500 12px var(--mono); color: var(--muted); }
+  .lookup input:focus { border-color: var(--ink); }
+  .lookup button { background: var(--ink); color: var(--panel); border-radius: 4px; padding: 0 14px; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+  .lookup .hint { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+  .verdict { margin-top: 14px; padding: 10px 12px; border-radius: 4px; font-size: 12.5px; line-height: 1.55; border: 1px solid var(--sage-line); background: var(--sage-soft); color: #4a5b34; }
+  .verdict.no { border-color: var(--warn-line); background: var(--warn-soft); color: var(--warn); }
+  .verdict.err { border-color: var(--warn-line); background: var(--warn-soft); color: var(--warn); }
+  .holdings { margin-top: 12px; border-top: 1px solid var(--line); }
+  .holdings .h { display: grid; grid-template-columns: 50px minmax(0,1fr) auto; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: 13px; }
+  .holdings .h .s { font: 500 11px var(--mono); color: var(--c); }
+  .holdings .h .v { text-align: right; font: 11px var(--mono); color: var(--muted); }
+  .holdings .h .v b { color: var(--ink); font-weight: 500; display: block; font-size: 12px; }
+  .holdings .h .g { font: 10px var(--mono); color: var(--sage); }
+  .lookup .foot { font-size: 11.5px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
 
-  .receive { margin-top: 14px; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; }
-  .receive strong { display: block; margin-top: 8px; font-size: 21px; font-weight: 500; overflow-wrap: anywhere; }
-  .receive strong.warn { color: var(--sell); font-size: 15px; }
-  .rows { margin-top: 13px; font: 11px var(--mono); color: var(--muted); }
-  .rows div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; }
+  /* ---- how ---- */
+  .steps { list-style: none; margin: 0; padding: 4px 18px 8px; counter-reset: s; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 18px; }
+  .steps li { counter-increment: s; padding: 16px 0 14px; border-top: 2px solid var(--line-firm); margin-top: 12px; }
+  .steps li:before { content: '0' counter(s); font: 500 10px var(--mono); color: var(--muted); letter-spacing: .1em; }
+  .steps strong { display: block; font-size: 14px; font-weight: 600; margin-top: 6px; letter-spacing: -.2px; }
+  .steps p { font-size: 12.5px; color: var(--muted); line-height: 1.65; margin: 6px 0 0; }
 
-  button.go {
-    width: 100%; margin-top: 15px; padding: 12px; border-radius: 5px;
-    background: var(--ink); color: var(--panel); border: 1px solid var(--ink);
-    box-shadow: 0 2px 0 rgba(0,0,0,.09);
-    font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase;
-    transition: transform .14s ease;
-  }
-  button.go:hover:not(:disabled) { transform: translateY(-1px); }
+  /* ---- trust ---- */
+  .trust .grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .trust .t { padding: 16px 18px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .trust .t:nth-child(2n) { border-right: 0; }
+  .trust .t:nth-last-child(-n+2) { border-bottom: 0; }
+  .trust .t strong { display: block; font-size: 13.5px; font-weight: 600; letter-spacing: -.1px; }
+  .trust .t strong .flag { font: 500 8.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--warn); margin-left: 6px; vertical-align: 2px; }
+  .trust .t p { font-size: 12.5px; color: var(--muted); line-height: 1.7; margin: 6px 0 0; }
+  .trust .t p a { color: var(--sage); border-bottom: 1px solid var(--sage-line); }
 
-  .msg { margin-top: 11px; font-size: 12px; color: var(--muted); min-height: 17px; line-height: 1.5; overflow-wrap: anywhere; }
-  .msg.err { color: var(--sell); }
-  .msg.ok { color: var(--buy); }
-  .msg a { color: var(--sage); text-decoration: underline; }
-
-  /* ---- explainer ---- */
-  .how .body { font-size: 14px; color: var(--muted); line-height: 1.75; }
-  .how p { margin: 0 0 13px; }
-  .how p:last-child { margin: 0; }
-  .how b { color: var(--ink); font-weight: 600; }
-  .how code { font: 12px var(--mono); color: var(--sage); background: var(--sage-soft); padding: 1px 5px; border-radius: 3px; }
-
-  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
-  .principles > div { border-top: 2px solid var(--line-firm); padding-top: 12px; }
-  .principles strong { display: block; font-size: 12.5px; font-weight: 600; margin-top: 7px; }
-  .principles small { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+  /* ---- addresses ---- */
+  .addrs .a { display: grid; grid-template-columns: 170px minmax(0,1fr); gap: 12px; padding: 9px 18px; border-bottom: 1px solid var(--line); font-size: 12.5px; align-items: baseline; }
+  .addrs .a:last-child { border-bottom: 0; }
+  .addrs .a span:first-child { color: var(--muted); }
+  .addrs .a a, .addrs .a em { font: 11.5px var(--mono); overflow-wrap: anywhere; }
+  .addrs .a a:hover { color: var(--sage); }
+  .addrs .a em { font-style: normal; color: var(--line-firm); }
 
   footer {
     margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line);
-    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
-    font: 10px var(--mono); letter-spacing: .06em; color: var(--muted);
+    display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center;
+    font: 10px var(--mono); letter-spacing: .04em; color: var(--muted); line-height: 1.7;
   }
-  footer a:hover { color: var(--accent); }
   footer .grow { flex: 1; }
 
-  @media (max-width: 880px) {
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 24px 20px 20px; }
+    .orbit-wrap { order: -1; }
+    #orbit { max-width: 250px; }
     .cols { grid-template-columns: 1fr; }
     .stats { grid-template-columns: repeat(2, 1fr); padding: 0; }
-    .stats > div { padding: 15px 16px; border-bottom: 1px solid var(--line); }
+    .stats > div { padding: 14px 16px; border-bottom: 1px solid var(--line); }
     .stats > div:nth-child(odd) { border-right: 1px solid var(--line); }
-    .slots { grid-template-columns: repeat(2, 1fr); }
-    .principles { grid-template-columns: 1fr; }
+    .stats > div:nth-child(even) { border-right: 0; }
+    .stats > div:last-child { grid-column: 1 / -1; border-bottom: 0; }
+    .steps { grid-template-columns: 1fr; }
+    .trust .grid { grid-template-columns: 1fr; }
+    .trust .t { border-right: 0; }
+    .trust .t:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+    .addrs .a { grid-template-columns: 1fr; gap: 2px; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 0 16px 48px; }
+    .slots { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+    .slot { padding: 8px 6px 8px; }
+    .slot .co, .slot .px { display: none; }
+    .slot .tick { font-size: 11px; }
+    .slot .state { font-size: 7.5px; letter-spacing: .06em; }
+    .round { grid-template-columns: 50px minmax(0,1fr); }
+    .round .when { grid-column: 2; text-align: left; }
+    .mast nav { gap: 12px; }
+    .sub { display: none; }
   }
 </style>
 </head>
 <body>
 
 <div class="strip">
-  <span class="dot"></span>
-  <span>ROTATOR</span>
+  <span class="dot" id="dot"></span>
+  <span id="strip-state">PRE-LAUNCH PREVIEW</span>
   <span class="sep">·</span>
-  <span>cluster <b id="cluster">—</b></span>
+  <span>paying in <b class="acc" id="strip-now">—</b></span>
   <span class="sep">·</span>
-  <span>oracle <b id="oracle-badge">—</b></span>
-  <span class="sep">·</span>
-  <a id="pool-link" href="#" target="_blank" rel="noopener noreferrer">pool —</a>
+  <span><b id="strip-next">—</b> in <b id="strip-cd">—</b></span>
 </div>
 
 <div class="wrap">
 
-  <div class="mast">
-    <div>
-      <div class="word">ROT<i>A</i>TOR</div>
-      <div class="sub">pairing desk · solana</div>
-    </div>
-    <div class="grow"></div>
-    <a href="#how">how it works</a>
-  </div>
+  <header class="mast">
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" /><span class="word">ROT<i>A</i>TOR</span></a>
+    <span class="sub">one coin · five stocks · solana</span>
+    <span class="grow"></span>
+    <nav>
+      <a href="#rounds">rounds</a>
+      <a href="#lookup">your wallet</a>
+      <a href="#how">how it works</a>
+      <a href="#trust">risks</a>
+      <a id="nav-x" target="_blank" rel="noopener noreferrer" hidden>X</a>
+      <a id="nav-buy" class="buy" target="_blank" rel="noopener noreferrer" hidden>Buy on StonkFun</a>
+    </nav>
+  </header>
 
   <section class="hero">
-    <span class="eyebrow">the pairing turns every five minutes</span>
-    <h1>One token, priced against <em id="hero-sym">—</em>.</h1>
-    <p>
-      A constant-product pool holding SWAP and SOL. An oracle index scales the token side, so the
-      price tracks whichever tokenized stock is currently paired — and the pairing advances through
-      all five, in order, forever.
-    </p>
+    <div>
+      <span class="eyebrow" id="hero-eyebrow">$ROTATOR · every five minutes, the next stock</span>
+      <h1>Hold one coin.<br />Get paid in <em id="hero-sym">—</em>.</h1>
+      <p>
+        Trading fees on $ROTATOR are paid to its holders in tokenized stock, and the stock changes
+        every five minutes: Apple, Tesla, NVIDIA, Microsoft, Amazon, then around again, for as long
+        as it trades. Nothing to claim. It arrives in your wallet.
+      </p>
+      <div class="cd">
+        <span class="eyebrow" id="cd-label">next rotation</span>
+        <div class="row">
+          <strong id="cd">—</strong>
+          <span class="to" id="cd-to">then <b id="cd-next">—</b></span>
+        </div>
+        <div class="track"><div class="fill" id="cd-fill"></div></div>
+      </div>
+    </div>
+    <div class="orbit-wrap"><svg id="orbit" viewBox="0 0 400 400" role="img" aria-label="The five stocks in rotation"></svg></div>
     <div class="slots" id="slots"></div>
   </section>
 
-  <div class="notice" id="notice">
-    <span class="tag">notice</span>
-    <span id="notice-body"><b>Loading.</b></span>
+  <div class="notice pre" id="notice">
+    <span class="tag" id="notice-tag">notice</span>
+    <span id="notice-body">Loading.</span>
   </div>
 
   <div class="stats">
-    <div><span class="eyebrow">paired to</span><strong class="accent" id="paired">—</strong></div>
-    <div><span class="eyebrow">index</span><strong id="index">—</strong></div>
-    <div><span class="eyebrow">price</span><strong class="sm" id="price">—</strong></div>
-    <div><span class="eyebrow">reserves</span><strong class="sm" id="reserves">—</strong></div>
-    <div><span class="eyebrow">fee</span><strong class="sm" id="fee">—</strong></div>
+    <div><span class="eyebrow">paying now</span><strong class="accent" id="s-now">—</strong><small id="s-now-sub">&nbsp;</small></div>
+    <div><span class="eyebrow">price</span><strong id="s-price" class="quiet">at launch</strong><small id="s-price-sub">&nbsp;</small></div>
+    <div><span class="eyebrow">market cap</span><strong id="s-mcap" class="quiet">at launch</strong><small id="s-mcap-sub">&nbsp;</small></div>
+    <div><span class="eyebrow">24h volume</span><strong id="s-vol" class="quiet">at launch</strong><small id="s-vol-sub">&nbsp;</small></div>
+    <div><span class="eyebrow">paid to holders</span><strong id="s-paid" class="quiet">at launch</strong><small id="s-paid-sub">&nbsp;</small></div>
   </div>
 
   <div class="cols">
 
-    <section class="card">
-      <header><span class="eyebrow">pool</span><span id="pool-state">reading…</span></header>
-      <div class="body">
-        <div class="cd">
-          <div class="track"><div class="fill" id="cd-fill"></div></div>
-          <div class="row"><span id="cd-text">—</span><span id="cd-next">—</span></div>
-        </div>
-        <div class="principles">
-          <div>
-            <span class="eyebrow">locked</span>
-            <strong>No withdraw exists</strong>
-            <small>The program has no instruction to remove liquidity. Not for the authority either.</small>
-          </div>
-          <div>
-            <span class="eyebrow">scheduled</span>
-            <strong>Five stocks, in order</strong>
-            <small>AAPL, TSLA, NVDA, MSFT, AMZN — a full cycle every twenty-five minutes.</small>
-          </div>
-          <div>
-            <span class="eyebrow">quoted</span>
-            <strong>Same maths as the chain</strong>
-            <small>Quotes here are pinned to the program by 392 generated vectors.</small>
-          </div>
-        </div>
-      </div>
+    <section class="card" id="rounds">
+      <header><span class="eyebrow">rounds · read from the chain</span><span id="rounds-meta">—</span></header>
+      <div id="rounds-list"></div>
+      <button class="more" id="rounds-more" hidden>Load older rounds</button>
     </section>
 
-    <section class="card">
-      <header><span class="eyebrow">trade</span><span id="wallet-state">not connected</span></header>
+    <section class="card lookup" id="lookup">
+      <header><span class="eyebrow">your wallet</span><span>nothing to claim</span></header>
       <div class="body">
-        <div class="tabs">
-          <button id="tab-buy" aria-pressed="true">Buy</button>
-          <button id="tab-sell" class="sell" aria-pressed="false">Sell</button>
-        </div>
-
-        <div class="field">
-          <span class="eyebrow" id="in-label">You pay</span>
-          <div class="amount">
-            <input type="text" id="amount" inputmode="decimal" placeholder="0.0" autocomplete="off" />
-            <span class="unit" id="in-unit">SOL</span>
-          </div>
-        </div>
-
-        <div class="receive">
-          <span class="eyebrow">You receive</span>
-          <strong id="q-out">—</strong>
-          <div class="rows">
-            <div><span>Minimum after 1% slippage</span><span id="q-min">—</span></div>
-            <div><span>Price impact</span><span id="q-impact">—</span></div>
-          </div>
-        </div>
-
-        <button class="go" id="go" disabled>Connect wallet</button>
-        <div class="msg" id="msg"></div>
+        <form id="lookup-form" autocomplete="off">
+          <input id="lookup-input" placeholder="Solana wallet address" spellcheck="false" aria-label="Solana wallet address" />
+          <button type="submit">Check</button>
+        </form>
+        <div class="hint">Paste the address you hold $ROTATOR in. Nothing is signed or connected. This only reads the chain.</div>
+        <div id="lookup-out"></div>
       </div>
     </section>
 
   </div>
 
   <section class="card how" id="how">
-    <header><span class="eyebrow">how it works</span><span>and what would break it</span></header>
-    <div class="body">
-      <p>
-        The index is applied to the <b>token</b> side of the curve, never the quote side. Both give a
-        price proportional to the index, but scaling the quote side makes the pool promise SOL it does
-        not hold: at an index of 2 a large sell demands 181% of the reserve, at 10 it demands 909%.
-        Scaling the token side bounds the payout by construction.
-      </p>
-      <p>
-        <b>At an index of exactly 1.0 the two are identical.</b> That is what makes it dangerous — the
-        wrong one looks perfectly correct until the pairing has actually moved.
-      </p>
-      <p>
-        When a trade would exceed what the curve can honour, the quote returns <code>null</code> and
-        this page says so, rather than filling you short and keeping the difference.
-      </p>
+    <header><span class="eyebrow">how it works</span><span>once a round, every five minutes</span></header>
+    <ol class="steps">
+      <li>
+        <strong>Fees come in</strong>
+        <p>Every $ROTATOR trade pays a fee. StonkFun sends the creator's share, 0.5% of volume, to the payout wallet, part in SOL and part in ROTATOR.</p>
+      </li>
+      <li>
+        <strong>The stock turns</strong>
+        <p>Every five minutes the next stock takes its turn: AAPL, TSLA, NVDA, MSFT, AMZN, and around. The schedule is fixed from launch, so anyone can compute it. This page does.</p>
+      </li>
+      <li>
+        <strong>Holders are counted</strong>
+        <p>Once a round, at a random moment nobody can time, every ROTATOR balance is read. The new SOL, less a 5% ops cut, is credited to holders by the size of their holding.</p>
+      </li>
+      <li>
+        <strong>Paid in that stock</strong>
+        <p>Anyone whose credit reaches 0.005 SOL is paid. The keeper buys that round's stock on Jupiter and sends it to their wallet. Smaller credits carry over and keep adding up.</p>
+      </li>
+      <li>
+        <strong>All of it on chain</strong>
+        <p>The rounds above are read from the payout wallet's own transactions, not from a log we keep. Every buy and every payment links to the chain.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="card trust" id="trust">
+    <header><span class="eyebrow">what you are trusting</span><span>read this before you buy</span></header>
+    <div class="grid">
+      <div class="t">
+        <strong>A keeper pays, not a contract</strong>
+        <p>Payouts are made by a server that holds the payout wallet's key. If it stops, payouts stop. Credits not yet paid are kept on the keeper's ledger, not on chain. What has been paid is on chain and shown above.</p>
+      </div>
+      <div class="t">
+        <strong>xStocks are not offered to US persons <span class="flag">read</span></strong>
+        <p>The stocks paid out are xStocks, tracker certificates issued by Backed. Backed does not offer them to US persons or to residents of several other countries, including Canada and the UK. ROTATOR cannot see where holders live. Check whether you may hold them. <a href="https://www.kraken.com/legal/xstocks" target="_blank" rel="noopener noreferrer">Kraken's xStocks terms</a></p>
+      </div>
+      <div class="t">
+        <strong>The issuer can freeze or take back the stock</strong>
+        <p>Every xStock is a Token-2022 token on which Backed holds a permanent delegate, which can move or burn tokens in any wallet, and the power to pause all transfers. None is in use today. The keeper checks for a pause or new restrictions each round and stops paying that stock if it finds one. Credits keep building.</p>
+      </div>
+      <div class="t">
+        <strong>No volume, no payouts</strong>
+        <p>Payouts are funded only by trading fees. Nothing else pays into the wallet. A quiet day means small rounds, and a dead coin means none. The stock is bought at market, and the keeper refuses any swap that moves the price more than 2%.</p>
+      </div>
+      <div class="t">
+        <strong>Your first payment in a stock costs rent</strong>
+        <p>If your wallet has never held a stock, the first payment in it opens an account for it. About 0.0016 SOL of rent comes out of your own credit. The account is yours, and closing it gives the rent back. Network fees are paid from the ops cut, not from holders.</p>
+      </div>
+      <div class="t">
+        <strong>Who is left out</strong>
+        <p>The payout, ops and burn wallets, and every program-owned account: the bonding curve, pool vaults and lockers. Fees that arrive as ROTATOR stay in the payout wallet. The keeper never sells them and never pays them out.</p>
+      </div>
     </div>
   </section>
 
+  <section class="card addrs">
+    <header><span class="eyebrow">addresses</span><span>check them before you trust a copy</span></header>
+    <div id="addr-list"></div>
+  </section>
+
   <footer>
-    <a id="f-program" href="#" target="_blank" rel="noopener noreferrer">program</a>
-    <a id="f-pool" href="#" target="_blank" rel="noopener noreferrer">pool</a>
-    <a id="f-mint" href="#" target="_blank" rel="noopener noreferrer">mint</a>
+    <span>ROTATOR is not investment advice, and nothing here is an offer of securities. The terminal pair always reads ROTATOR / SOL. The rotation is in what holders are paid.</span>
     <span class="grow"></span>
-    <span id="f-note"></span>
+    <span>prices: Pyth, DexScreener</span>
   </footer>
 
 </div>

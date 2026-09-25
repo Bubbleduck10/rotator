@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.46" r="0.72">
+      <stop offset="0" stop-color="#2a2e25"/>
+      <stop offset="1" stop-color="#14170f"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="28.672"/></filter>
+    <linearGradient id="L-t0" gradientUnits="userSpaceOnUse" x1="241.52" y1="355.84" x2="512" y2="199.68">
+      <stop offset="0" stop-color="#5b7a8c" stop-opacity="0"/>
+      <stop offset="1" stop-color="#5b7a8c" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <radialGradient id="L-b0-body" cx="0.36" cy="0.32" r="0.78">
+      <stop offset="0" stop-color="#b5c3cb"/>
+      <stop offset="0.55" stop-color="#5b7a8c"/>
+      <stop offset="1" stop-color="#384c57"/>
+    </radialGradient>
+    <radialGradient id="L-b0-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+<linearGradient id="L-t1" gradientUnits="userSpaceOnUse" x1="576.93" y1="206.5" x2="809.03" y2="415.49">
+      <stop offset="0" stop-color="#b0433c" stop-opacity="0"/>
+      <stop offset="1" stop-color="#b0433c" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <radialGradient id="L-b1-body" cx="0.36" cy="0.32" r="0.78">
+      <stop offset="0" stop-color="#dbaaa7"/>
+      <stop offset="0.55" stop-color="#b0433c"/>
+      <stop offset="1" stop-color="#6d2a25"/>
+    </radialGradient>
+    <radialGradient id="L-b1-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+<linearGradient id="L-t2" gradientUnits="userSpaceOnUse" x1="822.61" y1="479.35" x2="695.58" y2="764.67">
+      <stop offset="0" stop-color="#5d8a2b" stop-opacity="0"/>
+      <stop offset="1" stop-color="#5d8a2b" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <radialGradient id="L-b2-body" cx="0.36" cy="0.32" r="0.78">
+      <stop offset="0" stop-color="#b6caa0"/>
+      <stop offset="0.55" stop-color="#5d8a2b"/>
+      <stop offset="1" stop-color="#3a561b"/>
+    </radialGradient>
+    <radialGradient id="L-b2-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+<linearGradient id="L-t3" gradientUnits="userSpaceOnUse" x1="639.03" y1="797.32" x2="328.42" y2="764.67">
+      <stop offset="0" stop-color="#2c7cb0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#2c7cb0" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <radialGradient id="L-b3-body" cx="0.36" cy="0.32" r="0.78">
+      <stop offset="0" stop-color="#a0c4db"/>
+      <stop offset="0.55" stop-color="#2c7cb0"/>
+      <stop offset="1" stop-color="#1b4d6d"/>
+    </radialGradient>
+    <radialGradient id="L-b3-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+<linearGradient id="L-t4" gradientUnits="userSpaceOnUse" x1="279.9" y1="720.98" x2="214.97" y2="415.49">
+      <stop offset="0" stop-color="#bd7a1c" stop-opacity="0"/>
+      <stop offset="1" stop-color="#bd7a1c" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <radialGradient id="L-b4-body" cx="0.36" cy="0.32" r="0.78">
+      <stop offset="0" stop-color="#e1c399"/>
+      <stop offset="0.55" stop-color="#bd7a1c"/>
+      <stop offset="1" stop-color="#754c11"/>
+    </radialGradient>
+    <radialGradient id="L-b4-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g>
+    <circle cx="512" cy="512" r="312.32" fill="none" stroke="#f2f1e8" stroke-opacity="0.09" stroke-width="2"/>
+<polygon points="241.52,355.84 233.95,337.29 234.51,322.81 237.05,309.08 240.89,295.8 245.76,282.88 251.5,270.29 258.03,258.03 265.27,246.09 273.19,234.5 281.73,223.25 290.87,212.37 300.57,201.88 310.8,191.79 321.54,182.12 332.77,172.88 344.46,164.1 356.58,155.78 369.12,147.95 382.05,140.62 395.34,133.8 408.98,127.51 422.93,121.76 437.18,116.57 451.7,111.94 466.47,107.88 481.46,104.41 496.64,101.53 512,99.25 512,300.11 504,298.27 495.87,296.7 487.6,295.41 479.2,294.4 470.69,293.68 462.07,293.26 453.35,293.13 444.54,293.31 435.65,293.79 426.67,294.59 417.63,295.69 408.52,297.12 399.35,298.86 390.14,300.93 380.87,303.31 371.56,306.02 362.21,309.04 352.81,312.39 343.37,316.05 333.86,320.01 324.28,324.28 314.61,328.84 304.78,333.67 294.74,338.74 284.36,344 273.38,349.31 261.15,354.38 241.52,355.84" fill="url(#L-t0)"/>
+<polygon points="576.93,206.5 591.73,195.6 605.32,192.58 618.81,191.44 632.26,191.56 645.67,192.67 659.02,194.65 672.29,197.42 685.45,200.92 698.48,205.12 711.36,209.98 724.07,215.47 736.57,221.58 748.86,228.29 760.89,235.58 772.66,243.42 784.14,251.81 795.31,260.72 806.14,270.14 816.62,280.06 826.73,290.45 836.45,301.3 845.76,312.59 854.65,324.3 863.09,336.41 871.06,348.91 878.57,361.77 885.58,374.97 892.09,388.5 725.98,442.47 724.86,433.93 723.41,425.35 721.66,416.77 719.58,408.18 717.18,399.6 714.46,391.04 711.41,382.5 708.05,374 704.35,365.54 700.34,357.14 696,348.8 691.35,340.53 686.37,332.34 681.07,324.23 675.46,316.21 669.53,308.28 663.29,300.45 656.75,292.72 649.9,285.07 642.74,277.51 635.3,270.02 627.55,262.57 619.52,255.13 611.22,247.63 602.65,239.95 593.85,231.84 584.9,222.69 576.93,206.5" fill="url(#L-t1)"/>
+<polygon points="822.61,479.35 837.55,490.05 844.62,502.04 849.87,514.53 853.92,527.36 857.01,540.45 859.25,553.76 860.71,567.23 861.45,580.83 861.49,594.52 860.85,608.28 859.55,622.06 857.6,635.84 855.02,649.59 851.81,663.29 847.98,676.91 843.55,690.42 838.53,703.79 832.91,717.01 826.72,730.04 819.97,742.87 812.65,755.46 804.79,767.81 796.4,779.87 787.49,791.64 778.07,803.09 768.16,814.2 757.76,824.95 746.91,835.32 644.25,694.02 652.03,690.31 659.74,686.29 667.36,681.97 674.88,677.34 682.3,672.4 689.61,667.17 696.78,661.64 703.83,655.81 710.73,649.68 717.48,643.27 724.08,636.57 730.5,629.58 736.75,622.31 742.83,614.77 748.72,606.96 754.43,598.87 759.95,590.52 765.28,581.9 770.43,573.02 775.41,563.88 780.24,554.48 784.93,544.82 789.52,534.89 794.09,524.67 798.75,514.14 803.74,503.27 809.67,491.93 822.61,479.35" fill="url(#L-t2)"/>
+<polygon points="639.03,797.32 633.48,814.84 624.25,825.27 614.01,834.12 603.06,841.93 591.55,848.91 579.59,855.15 567.23,860.71 554.52,865.62 541.51,869.88 528.24,873.52 514.73,876.55 501.02,878.95 487.14,880.75 473.12,881.93 458.99,882.5 444.77,882.46 430.5,881.81 416.19,880.56 401.89,878.7 387.6,876.24 373.36,873.17 359.19,869.51 345.12,865.26 331.18,860.42 317.38,855 303.75,849 290.31,842.44 277.09,835.32 379.75,694.02 385.69,700.28 391.89,706.36 398.36,712.28 405.09,718 412.07,723.53 419.31,728.86 426.79,733.98 434.51,738.88 442.47,743.55 450.65,747.99 459.07,752.19 467.69,756.14 476.54,759.84 485.59,763.29 494.84,766.48 504.3,769.41 513.95,772.08 523.79,774.49 533.82,776.64 544.05,778.56 554.48,780.24 565.12,781.71 575.99,783.01 587.12,784.2 598.57,785.38 610.46,786.76 623.07,788.9 639.03,797.32" fill="url(#L-t3)"/>
+<polygon points="279.9,720.98 261.52,721.11 248.75,715.57 237.17,708.55 226.35,700.55 216.16,691.77 206.53,682.32 197.42,672.29 188.83,661.72 180.75,650.66 173.19,639.16 166.14,627.24 159.61,614.95 153.62,602.3 148.16,589.34 143.25,576.07 138.9,562.54 135.1,548.77 131.87,534.77 129.22,520.59 127.15,506.24 125.66,491.75 124.77,477.15 124.46,462.45 124.76,447.69 125.65,432.89 127.14,418.08 129.23,403.27 131.91,388.5 298.02,442.47 293.91,450.05 290.03,457.83 286.41,465.81 283.04,473.98 279.94,482.33 277.11,490.86 274.55,499.56 272.28,508.41 270.3,517.42 268.6,526.58 267.21,535.88 266.12,545.31 265.33,554.86 264.85,564.53 264.67,574.32 264.81,584.22 265.25,594.22 266,604.32 267.05,614.54 268.4,624.86 270.02,635.3 271.91,645.87 274.03,656.61 276.34,667.56 278.76,678.81 281.11,690.54 282.97,703.2 279.9,720.98" fill="url(#L-t4)"/>
+
+    <circle cx="512" cy="211.93" r="124.92" fill="#5b7a8c" opacity="0.5" filter="url(#glow)"/>
+    <circle cx="512" cy="199.68" r="122.47" fill="url(#L-b0-body)"/>
+    <circle cx="512" cy="199.68" r="120.97" fill="none" stroke="#94a9b4" stroke-opacity="0.35" stroke-width="3"/>
+    <ellipse cx="475.26" cy="155.59" rx="53.89" ry="33.07" transform="rotate(-32 475.26 155.59)" fill="url(#L-b0-spec)"/>
+    <circle cx="460.56" cy="145.79" r="9.8" fill="#ffffff" opacity="0.7"/>
+    
+
+    <circle cx="809.03" cy="426.14" r="108.63" fill="#b0433c" opacity="0.5" filter="url(#glow)"/>
+    <circle cx="809.03" cy="415.49" r="106.5" fill="url(#L-b1-body)"/>
+    <circle cx="809.03" cy="415.49" r="105" fill="none" stroke="#cc8580" stroke-opacity="0.35" stroke-width="3"/>
+    <ellipse cx="777.09" cy="377.15" rx="46.86" ry="28.75" transform="rotate(-32 777.09 377.15)" fill="url(#L-b1-spec)"/>
+    <circle cx="764.31" cy="368.63" r="8.52" fill="#ffffff" opacity="0.7"/>
+    
+
+    <circle cx="695.58" cy="775.32" r="108.63" fill="#5d8a2b" opacity="0.5" filter="url(#glow)"/>
+    <circle cx="695.58" cy="764.67" r="106.5" fill="url(#L-b2-body)"/>
+    <circle cx="695.58" cy="764.67" r="105" fill="none" stroke="#96b375" stroke-opacity="0.35" stroke-width="3"/>
+    <ellipse cx="663.63" cy="726.33" rx="46.86" ry="28.75" transform="rotate(-32 663.63 726.33)" fill="url(#L-b2-spec)"/>
+    <circle cx="650.85" cy="717.81" r="8.52" fill="#ffffff" opacity="0.7"/>
+    
+
+    <circle cx="328.42" cy="775.32" r="108.63" fill="#2c7cb0" opacity="0.5" filter="url(#glow)"/>
+    <circle cx="328.42" cy="764.67" r="106.5" fill="url(#L-b3-body)"/>
+    <circle cx="328.42" cy="764.67" r="105" fill="none" stroke="#76aacc" stroke-opacity="0.35" stroke-width="3"/>
+    <ellipse cx="296.47" cy="726.33" rx="46.86" ry="28.75" transform="rotate(-32 296.47 726.33)" fill="url(#L-b3-spec)"/>
+    <circle cx="283.69" cy="717.81" r="8.52" fill="#ffffff" opacity="0.7"/>
+    
+
+    <circle cx="214.97" cy="426.14" r="108.63" fill="#bd7a1c" opacity="0.5" filter="url(#glow)"/>
+    <circle cx="214.97" cy="415.49" r="106.5" fill="url(#L-b4-body)"/>
+    <circle cx="214.97" cy="415.49" r="105" fill="none" stroke="#d4a96b" stroke-opacity="0.35" stroke-width="3"/>
+    <ellipse cx="183.02" cy="377.15" rx="46.86" ry="28.75" transform="rotate(-32 183.02 377.15)" fill="url(#L-b4-spec)"/>
+    <circle cx="170.24" cy="368.63" r="8.52" fill="#ffffff" opacity="0.7"/>
+    
+  </g>
+  <circle cx="512" cy="512" r="19.46" fill="#f2f1e8" fill-opacity="0.42"/>
+       <circle cx="512" cy="512" r="53.25" fill="none" stroke="#f2f1e8" stroke-opacity="0.08" stroke-width="3.07"/>
+</svg>
