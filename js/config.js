@@ -17,7 +17,7 @@ export const CONFIG = {
   rpc: "https://solana-rpc.publicnode.com",
   /** the coin's StonkFun page and X account — set at launch */
   stonkfun: "",
-  x: "",
+  x: "https://x.com/StonkRotator",
 };
 
 export const PERIOD_SECS = 300;
