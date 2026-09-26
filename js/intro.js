@@ -3,9 +3,9 @@
 // letter, a ring and a burst of coins, then the tiles and the wordmark fly into
 // their real places on the page and the curtain lifts.
 //
-// Plays once per browser session and not at all under prefers-reduced-motion:
-// the inline script at the top of <body> decides, before first paint, so the
-// page never flashes before the curtain. Any click, scroll, touch or key skips
+// Plays on every load, and not at all under prefers-reduced-motion: the inline
+// script at the top of <body> decides, before first paint, so the page never
+// flashes before the curtain. Any click, scroll, touch or key skips
 // it. If this module never loads, a CSS failsafe lifts the curtain after 7s.
 //
 // Everything before the exit is CSS keyframes started by inserting the markup,
@@ -22,11 +22,6 @@ if (root && !html.classList.contains("no-intro")) play();
 else root?.remove();
 
 function play() {
-  try {
-    sessionStorage.setItem("sr-intro", "1");
-  } catch {
-    // private windows can refuse storage; the intro just plays again next time
-  }
   html.classList.add("intro-playing");
 
   // Sizes live in CSS (tile size and fan spread per breakpoint, fly-in origins in

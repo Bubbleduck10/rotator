@@ -464,7 +464,7 @@
   }
   footer .grow { flex: 1; }
 
-  /* ---- intro: the curtain that plays once per session (js/intro.js) ---- */
+  /* ---- intro: the curtain that plays on every load (js/intro.js) ---- */
   #intro {
     position: fixed; inset: 0; z-index: 200; overflow: hidden; background: #06030d;
     --ts: 62px; --fan: 120px; /* tile size, and the fan's half-width */
@@ -611,12 +611,8 @@
 </head>
 <body>
 <script>
-  // Before first paint: play the intro once per session, never under reduced motion.
-  (function () {
-    var seen = false;
-    try { seen = !!sessionStorage.getItem("sr-intro"); } catch (e) {}
-    if (seen || matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("no-intro");
-  })();
+  // Before first paint: the intro plays on every load, except under reduced motion.
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("no-intro");
 </script>
 <div id="intro" aria-hidden="true"></div>
 
